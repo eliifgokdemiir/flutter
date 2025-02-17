@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:state_management/data/entity/category.dart';
 import 'package:state_management/data/entity/branch.dart';
+import 'package:state_management/ui/view/dashboard.dart';
 import 'package:state_management/ui/view/navbar_menu.dart';
 
 class Home extends StatefulWidget {
@@ -26,6 +27,12 @@ class _HomeState extends State<Home> {
     Branch(id: 2, name: 'Şube 2', turnover: 184500.0),
     Branch(id: 3, name: 'Şube 3', turnover: 234200.0),
     Branch(id: 4, name: 'Şube 4', turnover: 98700.0),
+    Branch(id: 5, name: 'Şube 5', turnover: 123400.0),
+    Branch(id: 6, name: 'Şube 6', turnover: 123400.0),
+    Branch(id: 7, name: 'Şube 7', turnover: 123400.0),
+    Branch(id: 8, name: 'Şube 8', turnover: 123400.0),
+    Branch(id: 9, name: 'Şube 9', turnover: 123400.0),
+    Branch(id: 10, name: 'Şube 10', turnover: 123400.0),
   ];
 
   void _toggleSearch() {
@@ -147,85 +154,37 @@ class _HomeState extends State<Home> {
               ),
             ),
             const SizedBox(height: 20),
-            SizedBox(
-              height: 250,
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                scrollDirection: Axis.horizontal,
-                itemCount: branchList.length,
-                separatorBuilder: (context, index) => const SizedBox(width: 16),
-                itemBuilder: (context, index) {
-                  final branch = branchList[index];
-                  return Container(
-                    width: 180,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.blue.withOpacity(0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Şubeler',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          height: 140,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.blue[50],
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(12),
-                            ),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.storefront,
-                                  size: 60, color: Colors.blue),
-                              const SizedBox(height: 10),
-                              Text(
-                                branch.name,
-                                style: TextStyle(
-                                  color: Colors.blue[800],
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Aylık Ciro',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '₺${branch.turnover.toStringAsFixed(2)}',
-                                style: TextStyle(
-                                  color: Colors.blue[800],
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                  ),
+                  const SizedBox(height: 10),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 0.8,
                     ),
-                  );
-                },
+                    itemCount: branchList.length,
+                    itemBuilder: (context, index) {
+                      final branch = branchList[index];
+                      return _buildBranchCard(branch);
+                    },
+                  ),
+                ],
               ),
             ),
           ],
@@ -249,12 +208,22 @@ class _HomeState extends State<Home> {
           children: [
             IconButton(
               icon: Icon(Icons.home, color: Colors.blue[800], size: 28),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Home()),
+                );
+              },
             ),
             IconButton(
               icon: Icon(Icons.analytics_outlined,
                   color: Colors.blue[800], size: 28),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Dashboard()),
+                );
+              },
             ),
             IconButton(
               icon: Icon(Icons.person, color: Colors.blue[800], size: 28),
@@ -287,6 +256,76 @@ class _HomeState extends State<Home> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildBranchCard(Branch branch) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 120,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.blue[50],
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12),
+              ),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.storefront, size: 50, color: Colors.blue),
+                const SizedBox(height: 8),
+                Text(
+                  branch.name,
+                  style: TextStyle(
+                    color: Colors.blue[800],
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Aylık Ciro',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '₺${branch.turnover.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    color: Colors.blue[800],
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
