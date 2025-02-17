@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:state_management/ui/view/dashboard.dart';
 import 'package:state_management/ui/view/home.dart';
 
 class NavbarMenu extends StatelessWidget {
@@ -35,12 +36,17 @@ class NavbarMenu extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.only(top: 20),
               children: [
-                _buildMenuItem(Icons.home, 'Anasayfa', context),
-                _buildMenuItem(Icons.analytics, 'Raporlar', context),
-                _buildMenuItem(Icons.business, 'Şubeler', context),
-                _buildMenuItem(Icons.person, 'Profil', context),
-                _buildMenuItem(Icons.settings, 'Ayarlar', context),
-                _buildMenuItem(Icons.exit_to_app, 'Çıkış Yap', context),
+                _buildMenuItem(Icons.home, 'Anasayfa', context, const Home()),
+                _buildMenuItem(
+                    Icons.analytics, 'Raporlar', context, const Dashboard()),
+                _buildMenuItem(
+                    Icons.business, 'Şubeler', context, const Dashboard()),
+                _buildMenuItem(
+                    Icons.person, 'Profil', context, const Dashboard()),
+                _buildMenuItem(
+                    Icons.settings, 'Ayarlar', context, const Dashboard()),
+                _buildMenuItem(
+                    Icons.exit_to_app, 'Çıkış Yap', context, const Dashboard()),
               ],
             ),
           ),
@@ -49,7 +55,8 @@ class NavbarMenu extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title, BuildContext context) {
+  Widget _buildMenuItem(
+      IconData icon, String title, BuildContext context, Widget page) {
     return ListTile(
       leading: Icon(icon, color: Colors.blue[800]),
       title: Text(title),
@@ -57,7 +64,7 @@ class NavbarMenu extends StatelessWidget {
         Navigator.pop(context);
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const Home()),
+          MaterialPageRoute(builder: (context) => page),
         );
       },
     );
