@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:state_management/ui/view/navbar_menu.dart';
+import 'package:state_management/ui/view/home.dart';
+import 'dart:math';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -46,14 +48,61 @@ class _DashboardState extends State<Dashboard> {
         ],
       ),
       drawer: const NavbarMenu(),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildSummaryCards(),
+                    const SizedBox(height: 20),
+                    _buildRevenueTable(),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.only(bottom: 10, left: 16, right: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.blue.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildSummaryCards(),
-            const SizedBox(height: 20),
-            Expanded(
-              child: _buildRevenueTable(),
+            IconButton(
+              icon: Icon(Icons.home, color: Colors.blue[800], size: 28),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Home()),
+                );
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.analytics_outlined,
+                  color: Colors.blue[800], size: 28),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: Icon(Icons.person, color: Colors.blue[800], size: 28),
+              onPressed: () {},
             ),
           ],
         ),
@@ -89,56 +138,90 @@ class _DashboardState extends State<Dashboard> {
     final totalRevenue =
         _revenueData.fold<double>(0, (sum, item) => sum + item.grossRevenue);
     final averageRevenue = totalRevenue / _revenueData.length;
+    final maxRevenue = _revenueData.map((e) => e.grossRevenue).reduce(max);
+    final minRevenue = _revenueData.map((e) => e.grossRevenue).reduce(min);
 
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      childAspectRatio: 1.5,
-      crossAxisSpacing: 15,
-      mainAxisSpacing: 15,
-      children: [
-        _buildSummaryCard('Toplam Ciro', '₺${totalRevenue.toStringAsFixed(2)}',
-            Icons.attach_money, Colors.blue),
-        _buildSummaryCard(
-            'Ortalama Ciro',
-            '₺${averageRevenue.toStringAsFixed(2)}',
-            Icons.trending_up,
-            Colors.green),
-        _buildSummaryCard(
-            'Maksimum Ciro', '₺12300', Icons.bar_chart, Colors.orange),
-        _buildSummaryCard(
-            'Minimum Ciro', '₺5400', Icons.show_chart, Colors.red),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmallScreen = constraints.maxWidth < 400;
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: isSmallScreen ? 1 : 2,
+            childAspectRatio: isSmallScreen ? 2.0 : 1.4,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+          ),
+          itemCount: 4,
+          itemBuilder: (context, index) {
+            switch (index) {
+              case 0:
+                return _buildSummaryCard(
+                    'Toplam',
+                    '₺${totalRevenue.toStringAsFixed(2)}',
+                    Icons.attach_money,
+                    Colors.blue);
+              case 1:
+                return _buildSummaryCard(
+                    'Ortalama',
+                    '₺${averageRevenue.toStringAsFixed(2)}',
+                    Icons.trending_up,
+                    Colors.green);
+              case 2:
+                return _buildSummaryCard(
+                    'Maksimum',
+                    '₺${maxRevenue.toStringAsFixed(2)}',
+                    Icons.bar_chart,
+                    Colors.orange);
+              case 3:
+                return _buildSummaryCard(
+                    'Minimum',
+                    '₺${minRevenue.toStringAsFixed(2)}',
+                    Icons.show_chart,
+                    Colors.red);
+              default:
+                return const SizedBox.shrink();
+            }
+          },
+        );
+      },
     );
   }
 
   Widget _buildSummaryCard(
       String title, String value, IconData icon, Color color) {
     return Card(
-      elevation: 4,
+      elevation: 2,
+      margin: const EdgeInsets.all(4),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 32, color: color),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
+            Icon(icon, size: 24, color: color),
+            const SizedBox(height: 6),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                value,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
             ),
             const SizedBox(height: 4),
             Text(
               title,
-              style: Theme.of(context).textTheme.bodyMedium,
-              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+              ),
             ),
           ],
         ),
@@ -158,8 +241,11 @@ class _DashboardState extends State<Dashboard> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            Expanded(
+            SizedBox(
+              height: 200,
               child: ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: _revenueData.length,
                 separatorBuilder: (context, index) => const Divider(),
                 itemBuilder: (context, index) {

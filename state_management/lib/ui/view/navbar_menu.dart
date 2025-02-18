@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:state_management/ui/view/branches.dart';
 import 'package:state_management/ui/view/dashboard.dart';
 import 'package:state_management/ui/view/home.dart';
 
@@ -40,7 +41,7 @@ class NavbarMenu extends StatelessWidget {
                 _buildMenuItem(
                     Icons.analytics, 'Raporlar', context, const Dashboard()),
                 _buildMenuItem(
-                    Icons.business, 'Şubeler', context, const Dashboard()),
+                    Icons.business, 'Şubeler', context, const Home()),
                 _buildMenuItem(
                     Icons.person, 'Profil', context, const Dashboard()),
                 _buildMenuItem(
