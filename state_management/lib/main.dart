@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:state_management/ui/view/home.dart';
+import 'package:image_picker_android/image_picker_android.dart';
+import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 
 void main() {
-  runApp(const MyApp());
+  ImagePickerPlatform imagePickerImplementation = ImagePickerAndroid();
+  ImagePickerPlatform.instance = imagePickerImplementation;
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {

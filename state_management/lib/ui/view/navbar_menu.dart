@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:state_management/ui/view/branches.dart';
 import 'package:state_management/ui/view/dashboard.dart';
 import 'package:state_management/ui/view/home.dart';
+import 'package:state_management/ui/view/profile.dart';
 
 class NavbarMenu extends StatelessWidget {
   const NavbarMenu({super.key});
@@ -43,7 +44,7 @@ class NavbarMenu extends StatelessWidget {
                 _buildMenuItem(
                     Icons.business, 'Şubeler', context, const Home()),
                 _buildMenuItem(
-                    Icons.person, 'Profil', context, const Dashboard()),
+                    Icons.person, 'Profil', context, const Profile()),
                 _buildMenuItem(
                     Icons.settings, 'Ayarlar', context, const Dashboard()),
                 _buildMenuItem(

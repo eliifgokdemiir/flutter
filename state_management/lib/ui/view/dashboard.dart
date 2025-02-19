@@ -3,6 +3,8 @@ import 'package:state_management/ui/view/navbar_menu.dart';
 import 'package:state_management/ui/view/home.dart';
 import 'dart:math';
 
+import 'package:state_management/ui/view/profile.dart';
+
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
 
@@ -12,6 +14,8 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
   String _selectedInterval = 'Günlük';
   final List<String> _intervals = ['Günlük', 'Haftalık', 'Aylık', 'Yıllık'];
   late List<RevenueData> _revenueData;
@@ -32,22 +36,59 @@ class _DashboardState extends State<Dashboard> {
     ];
   }
 
+  void _toggleSearch() {
+    setState(() {
+      _isSearching = !_isSearching;
+      if (!_isSearching) _searchController.clear();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
+      drawer: const NavbarMenu(),
       appBar: AppBar(
-        title: const Text('Dashboard'),
-        leading: IconButton(
-          icon: const Icon(Icons.menu),
-          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-        ),
+        backgroundColor: Colors.white12,
+        title: _isSearching
+            ? TextField(
+                controller: _searchController,
+                autofocus: true,
+                style: const TextStyle(color: Colors.blue),
+                cursorColor: Colors.blue,
+                decoration: InputDecoration(
+                  hintText: 'Ara...',
+                  hintStyle: TextStyle(color: Colors.blue.withOpacity(0.7)),
+                  border: InputBorder.none,
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.close, color: Colors.blue),
+                    onPressed: _toggleSearch,
+                  ),
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/logo/flexy-logo.png',
+                      width: 100,
+                      height: 50,
+                    ),
+                  ],
+                ),
+              ),
         actions: [
-          _buildIntervalDropdown(),
-          const SizedBox(width: 12),
+          if (!_isSearching)
+            IconButton(
+              icon: const Icon(Icons.search,
+                  color: Color.fromARGB(255, 6, 83, 146)),
+              onPressed: _toggleSearch,
+            ),
         ],
       ),
-      drawer: const NavbarMenu(),
       body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
@@ -102,7 +143,12 @@ class _DashboardState extends State<Dashboard> {
             ),
             IconButton(
               icon: Icon(Icons.person, color: Colors.blue[800], size: 28),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Profile()),
+                );
+              },
             ),
           ],
         ),

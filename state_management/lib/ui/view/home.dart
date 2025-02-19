@@ -4,6 +4,7 @@ import 'package:state_management/data/entity/branch.dart';
 import 'package:state_management/ui/view/dashboard.dart';
 import 'package:state_management/ui/view/navbar_menu.dart';
 import 'package:state_management/ui/view/branches.dart';
+import 'package:state_management/ui/view/profile.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -228,7 +229,12 @@ class _HomeState extends State<Home> {
             ),
             IconButton(
               icon: Icon(Icons.person, color: Colors.blue[800], size: 28),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Profile()),
+                );
+              },
             ),
           ],
         ),
@@ -261,7 +267,7 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildBranchCard(Branch branch) {
-    return InkWell(
+    return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
