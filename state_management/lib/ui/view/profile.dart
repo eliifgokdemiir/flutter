@@ -229,14 +229,16 @@ class _ProfileState extends State<Profile> {
                     const Divider(height: 30),
                     _buildInfoRow('Telefon', '+90 555 123 45 67'),
                     const Divider(height: 30),
-                    _buildInfoRow('Konum', 'İstanbul, Türkiye'),
+                    _buildInfoRow('Konum', 'Ankara, Türkiye'),
                     const SizedBox(height: 25),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        icon: const Icon(Icons.edit, size: 20),
+                        icon: const Icon(Icons.edit,
+                            size: 20, color: Colors.white),
                         label: const Text('Profili Düzenle',
-                            style: TextStyle(fontSize: 16)),
+                            style:
+                                TextStyle(fontSize: 16, color: Colors.white)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue[800],
                           padding: const EdgeInsets.symmetric(vertical: 15),
@@ -265,8 +267,6 @@ class _ProfileState extends State<Profile> {
                     _buildDetailItem('Üyelik Tarihi', '01 Ocak 2023'),
                     const SizedBox(height: 15),
                     _buildDetailItem('Son Giriş', '2 saat önce'),
-                    const SizedBox(height: 15),
-                    _buildDetailItem('Doğum Tarihi', '15 Mart 1990'),
                   ],
                 ),
               ),
