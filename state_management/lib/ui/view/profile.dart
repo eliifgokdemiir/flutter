@@ -295,22 +295,22 @@ class _ProfileState extends State<Profile> {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => const Home()));
               },
-              icon: Icon(Icons.home, color: Colors.blue, size: 28),
+              icon: Icon(Icons.home, color: Colors.blue[800], size: 28),
             ),
             IconButton(
               onPressed: () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => const Dashboard()));
               },
-              icon:
-                  Icon(Icons.analytics_outlined, color: Colors.blue, size: 28),
+              icon: Icon(Icons.analytics_outlined,
+                  color: Colors.blue[800], size: 28),
             ),
             IconButton(
               onPressed: () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => const Profile()));
               },
-              icon: Icon(Icons.person, color: Colors.blue, size: 28),
+              icon: Icon(Icons.person, color: Colors.blue[800], size: 28),
             ),
           ],
         ),

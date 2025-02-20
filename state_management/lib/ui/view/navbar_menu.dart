@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:state_management/data/entity/product.dart';
 import 'package:state_management/ui/view/branches.dart';
 import 'package:state_management/ui/view/dashboard.dart';
 import 'package:state_management/ui/view/home.dart';
+import 'package:state_management/ui/view/product_management.dart';
 import 'package:state_management/ui/view/profile.dart';
+import 'package:state_management/ui/view/reports.dart';
 
 class NavbarMenu extends StatelessWidget {
   const NavbarMenu({super.key});
@@ -40,9 +43,11 @@ class NavbarMenu extends StatelessWidget {
               children: [
                 _buildMenuItem(Icons.home, 'Anasayfa', context, const Home()),
                 _buildMenuItem(
-                    Icons.analytics, 'Raporlar', context, const Dashboard()),
+                    Icons.analytics, 'Raporlar', context, const Reports()),
                 _buildMenuItem(
                     Icons.business, 'Şubeler', context, const Home()),
+                _buildMenuItem(Icons.inventory_2_outlined, 'Ürün İşlemleri',
+                    context, ProductManagement()),
                 _buildMenuItem(
                     Icons.person, 'Profil', context, const Profile()),
                 _buildMenuItem(

@@ -1,0 +1,2 @@
+C:/Users/Flexy - Elif/Desktop/flutter/state_management/android/app/.cxx/Debug/703k13q2/x86/CMakeFiles/edit_cache.dir
+C:/Users/Flexy - Elif/Desktop/flutter/state_management/android/app/.cxx/Debug/703k13q2/x86/CMakeFiles/rebuild_cache.dir
