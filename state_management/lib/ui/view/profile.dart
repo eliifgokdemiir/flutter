@@ -160,30 +160,17 @@ class _ProfileState extends State<Profile> {
       drawer: const NavbarMenu(),
       appBar: AppBar(
         backgroundColor: Colors.white12,
-        title: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                'assets/logo/flexy-logo.png',
-                width: 100,
-                height: 50,
-              ),
-            ],
-          ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              'assets/logo/flexy-logo.png',
+              width: 100,
+              height: 50,
+            ),
+          ],
         ),
-        actions: [
-          IconButton(
-              onPressed: () {
-                _toggleSearch;
-              },
-              icon: const Icon(
-                Icons.search,
-                color: Color.fromARGB(255, 6, 83, 146),
-              ))
-        ],
+        centerTitle: true, //appbarın başlığı ortalaması için
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

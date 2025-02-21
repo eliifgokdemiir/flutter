@@ -44,8 +44,6 @@ class NavbarMenu extends StatelessWidget {
                 _buildMenuItem(Icons.home, 'Anasayfa', context, const Home()),
                 _buildMenuItem(
                     Icons.analytics, 'Raporlar', context, const Reports()),
-                _buildMenuItem(
-                    Icons.business, 'Şubeler', context, const Home()),
                 _buildMenuItem(Icons.inventory_2_outlined, 'Ürün İşlemleri',
                     context, ProductManagement()),
                 _buildMenuItem(
