@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:state_management/ui/view/dashboard.dart';
 import 'package:state_management/ui/view/home.dart';
+import 'package:state_management/ui/view/navbar_menu.dart';
 import 'package:state_management/ui/view/profile.dart';
 
 class Reports extends StatefulWidget {
@@ -13,6 +14,7 @@ class Reports extends StatefulWidget {
 }
 
 class _ReportsState extends State<Reports> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String _selectedPeriod = 'Günlük';
   final List<String> _periods = ['Günlük', 'Haftalık', 'Aylık', 'Yıllık'];
   List<ReportData> _reportData = [];
@@ -24,13 +26,39 @@ class _ReportsState extends State<Reports> {
   }
 
   List<ReportData> _generateSampleData() {
-    return [
-      ReportData(DateTime(2024, 1, 1), 5400),
-      ReportData(DateTime(2024, 1, 2), 8200),
-      ReportData(DateTime(2024, 1, 3), 6200),
-      ReportData(DateTime(2024, 1, 4), 7300),
-      ReportData(DateTime(2024, 1, 5), 9100),
-    ];
+    switch (_selectedPeriod) {
+      case 'Günlük':
+        return [
+          ReportData(DateTime(2024, 6, 1), 5400),
+          ReportData(DateTime(2024, 6, 2), 8200),
+          ReportData(DateTime(2024, 6, 3), 6200),
+          ReportData(DateTime(2024, 6, 4), 7300),
+          ReportData(DateTime(2024, 6, 5), 9100),
+        ];
+      case 'Haftalık':
+        return [
+          ReportData(DateTime(2024, 6, 7), 35000),
+          ReportData(DateTime(2024, 6, 14), 42000),
+          ReportData(DateTime(2024, 6, 21), 38500),
+          ReportData(DateTime(2024, 6, 28), 41000),
+        ];
+      case 'Aylık':
+        return [
+          ReportData(DateTime(2024, 1, 1), 210000),
+          ReportData(DateTime(2024, 2, 1), 234000),
+          ReportData(DateTime(2024, 3, 1), 198000),
+          ReportData(DateTime(2024, 4, 1), 245000),
+        ];
+      case 'Yıllık':
+        return [
+          ReportData(DateTime(2021, 1, 1), 1850000),
+          ReportData(DateTime(2022, 1, 1), 2140000),
+          ReportData(DateTime(2023, 1, 1), 1980000),
+          ReportData(DateTime(2024, 1, 1), 2450000),
+        ];
+      default:
+        return [];
+    }
   }
 
   @override
@@ -39,6 +67,8 @@ class _ReportsState extends State<Reports> {
     final average = total / _reportData.length;
 
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: const NavbarMenu(),
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Padding(
@@ -237,50 +267,99 @@ class _ReportsState extends State<Reports> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
-      child: Padding(
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.4,
         padding: const EdgeInsets.all(16.0),
         child: BarChart(
           BarChartData(
             alignment: BarChartAlignment.spaceBetween,
-            groupsSpace: 20,
-            barTouchData: BarTouchData(enabled: true),
+            groupsSpace: _selectedPeriod == 'Günlük' ? 8 : 12,
+            barTouchData: BarTouchData(
+              enabled: true,
+              touchTooltipData: BarTouchTooltipData(
+                getTooltipItem: (group, groupIndex, rod, rodIndex) =>
+                    BarTooltipItem(
+                  '₺${rod.toY.toStringAsFixed(2)}',
+                  const TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ),
             titlesData: FlTitlesData(
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
-                  getTitlesWidget: (value, meta) => Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      _formatDate(_reportData[value.toInt()].date),
-                      style: const TextStyle(fontSize: 10),
+                  getTitlesWidget: (value, meta) => SizedBox(
+                    width: 60,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        _formatDate(_reportData[value.toInt()].date),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: _selectedPeriod == 'Aylık' ? 10 : 11,
+                          color: Colors.grey[700],
+                        ),
+                      ),
                     ),
                   ),
+                  reservedSize: 30,
                 ),
               ),
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
                   getTitlesWidget: (value, meta) => Text(
-                    '₺${value.toInt()}',
-                    style: const TextStyle(fontSize: 10),
+                    '₺${(value ~/ 1000)}K',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.grey[600],
+                    ),
                   ),
-                  reservedSize: 40,
+                  reservedSize: 50,
                 ),
               ),
             ),
-            gridData: FlGridData(show: false),
-            borderData: FlBorderData(show: false),
+            gridData: FlGridData(
+              show: true,
+              drawVerticalLine: false,
+              getDrawingHorizontalLine: (value) => FlLine(
+                color: Colors.blueGrey[100]!,
+                strokeWidth: 1.5,
+                dashArray: [4],
+              ),
+              horizontalInterval: _selectedPeriod == 'Yıllık'
+                  ? 500000
+                  : _selectedPeriod == 'Aylık'
+                      ? 100000
+                      : 10000,
+            ),
+            borderData: FlBorderData(
+              show: true,
+              border: Border.all(
+                color: Colors.grey[300]!,
+                width: 1,
+              ),
+            ),
             barGroups: _reportData
                 .asMap()
                 .entries
                 .map(
                   (entry) => BarChartGroupData(
                     x: entry.key,
+                    barsSpace: 4,
                     barRods: [
                       BarChartRodData(
                         toY: entry.value.amount,
-                        color: Colors.blue,
-                        width: 20,
+                        color: _getChartColor(entry.key),
+                        width: _selectedPeriod == 'Günlük'
+                            ? 18
+                            : _selectedPeriod == 'Haftalık'
+                                ? 22
+                                : 24,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ],
@@ -293,22 +372,97 @@ class _ReportsState extends State<Reports> {
     );
   }
 
+  Color _getChartColor(int index) {
+    final colors = [
+      Colors.blue[400]!,
+      Colors.blue[300]!,
+      Colors.blue[200]!,
+    ];
+    return colors[index % colors.length];
+  }
+
   Widget _buildDataTable() {
-    return DataTable(
-      columns: const [
-        DataColumn(label: Text('Tarih')),
-        DataColumn(label: Text('Miktar (₺)'), numeric: true),
-      ],
-      rows: _reportData
-          .map(
-            (data) => DataRow(
-              cells: [
-                DataCell(Text(DateFormat('dd/MM/yyyy').format(data.date))),
-                DataCell(Text(data.amount.toStringAsFixed(2))),
-              ],
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        child: DataTable(
+          columnSpacing: 20,
+          horizontalMargin: 12,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          columns: [
+            DataColumn(
+              label: Container(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: const Text(
+                  'Tarih',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
             ),
-          )
-          .toList(),
+            DataColumn(
+              label: Container(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: const Text(
+                  'Miktar (₺)',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+              numeric: true,
+            ),
+          ],
+          rows: _reportData
+              .asMap()
+              .entries
+              .map(
+                (entry) => DataRow(
+                  color: MaterialStateProperty.resolveWith<Color>(
+                    (states) => entry.key.isEven
+                        ? Colors.blue.withOpacity(0.05)
+                        : Colors.transparent,
+                  ),
+                  cells: [
+                    DataCell(
+                      Text(
+                        DateFormat('dd/MM/yyyy').format(entry.value.date),
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ),
+                    DataCell(
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          NumberFormat.currency(
+                            locale: 'tr_TR',
+                            symbol: '',
+                            decimalDigits: 2,
+                          ).format(entry.value.amount),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontFeatures: [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+              .toList(),
+        ),
+      ),
     );
   }
 

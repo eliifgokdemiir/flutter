@@ -4,6 +4,7 @@ import 'package:state_management/data/entity/category.dart';
 import 'package:state_management/data/entity/product.dart';
 import 'package:state_management/ui/view/home.dart';
 import 'package:state_management/ui/view/dashboard.dart';
+import 'package:state_management/ui/view/navbar_menu.dart';
 import 'package:state_management/ui/view/profile.dart';
 
 class ProductManagement extends StatefulWidget {
@@ -27,6 +28,7 @@ class _ProductManagementState extends State<ProductManagement> {
     Category(id: 3, name: 'Tatlı', color: Colors.red),
   ];
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final List<Product> _products = [];
   final _formKey = GlobalKey<FormState>();
   final _productNameController = TextEditingController();
@@ -36,6 +38,8 @@ class _ProductManagementState extends State<ProductManagement> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: const NavbarMenu(),
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Padding(
