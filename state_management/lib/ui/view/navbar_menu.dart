@@ -6,6 +6,7 @@ import 'package:state_management/ui/view/home.dart';
 import 'package:state_management/ui/view/product_management.dart';
 import 'package:state_management/ui/view/profile.dart';
 import 'package:state_management/ui/view/reports.dart';
+import 'package:state_management/ui/view/settings.dart';
 
 class NavbarMenu extends StatelessWidget {
   const NavbarMenu({super.key});
@@ -49,7 +50,7 @@ class NavbarMenu extends StatelessWidget {
                 _buildMenuItem(
                     Icons.person, 'Profil', context, const Profile()),
                 _buildMenuItem(
-                    Icons.settings, 'Ayarlar', context, const Dashboard()),
+                    Icons.settings, 'Ayarlar', context, const Settings()),
                 _buildMenuItem(
                     Icons.exit_to_app, 'Çıkış Yap', context, const Dashboard()),
               ],
