@@ -1,22 +1,23 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:state_management/ui/view/home.dart';
-import 'package:state_management/ui/view/register.dart';
+import 'package:state_management/ui/view/login.dart';
 
-class Login extends StatefulWidget {
-  const Login({super.key});
+class Register extends StatefulWidget {
+  const Register({super.key});
 
   @override
-  State<Login> createState() => _LoginState();
+  State<Register> createState() => _RegisterState();
 }
 
-class _LoginState extends State<Login> {
+class _RegisterState extends State<Register> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   bool _isPasswordVisible = false;
-  bool _rememberMe = false;
+  bool _isConfirmPasswordVisible = false;
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -24,17 +25,18 @@ class _LoginState extends State<Login> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  void _login() {
+  void _register() {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
         _errorMessage = null;
       });
 
-      print("Giriş işlemi başlatılıyor: ${_emailController.text}");
+      print("Kayıt işlemi başlatılıyor: ${_emailController.text}");
 
       try {
         // Firebase Authentication durumunu kontrol et
@@ -46,13 +48,13 @@ class _LoginState extends State<Login> {
           print("Mevcut kullanıcı oturumu kapatılıyor...");
           FirebaseAuth.instance.signOut().then((_) {
             print("Kullanıcı oturumu kapatıldı");
-            _performLogin(); // Yeni giriş yap
+            _createNewUser(); // Yeni kullanıcı oluştur
           }).catchError((error) {
             print("Oturum kapatma hatası: $error");
-            _performLogin(); // Yine de giriş yapmayı dene
+            _createNewUser(); // Yine de yeni kullanıcı oluşturmayı dene
           });
         } else {
-          _performLogin(); // Doğrudan giriş yap
+          _createNewUser(); // Doğrudan yeni kullanıcı oluştur
         }
       } catch (e) {
         print("Beklenmeyen hata: $e");
@@ -69,9 +71,9 @@ class _LoginState extends State<Login> {
     }
   }
 
-  // Giriş işlemi
-  void _performLogin() {
-    print("Giriş yapılıyor: ${_emailController.text.trim()}");
+  // Yeni kullanıcı oluşturma işlemi
+  void _createNewUser() {
+    print("Yeni kullanıcı oluşturuluyor: ${_emailController.text.trim()}");
 
     // Timeout kontrolü için
     Timer? timeoutTimer;
@@ -79,23 +81,22 @@ class _LoginState extends State<Login> {
     try {
       // 30 saniye timeout
       timeoutTimer = Timer(const Duration(seconds: 30), () {
-        print("Giriş işlemi zaman aşımına uğradı");
+        print("Kayıt işlemi zaman aşımına uğradı");
         if (_isLoading) {
           setState(() {
             _isLoading = false;
             _errorMessage =
-                "Giriş işlemi zaman aşımına uğradı. Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin.";
+                "Kayıt işlemi zaman aşımına uğradı. Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin.";
           });
 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Giriş işlemi zaman aşımına uğradı")),
+            const SnackBar(content: Text("Kayıt işlemi zaman aşımına uğradı")),
           );
         }
       });
 
-      // Firebase Authentication ile giriş yap
       FirebaseAuth.instance
-          .signInWithEmailAndPassword(
+          .createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       )
@@ -103,8 +104,8 @@ class _LoginState extends State<Login> {
         // Timeout timer'ı iptal et
         timeoutTimer?.cancel();
 
-        // Giriş başarılı
-        print("Giriş başarılı: ${userCredential.user?.email}");
+        // Kayıt başarılı
+        print("Kayıt başarılı: ${userCredential.user?.email}");
         print("Kullanıcı UID: ${userCredential.user?.uid}");
 
         setState(() {
@@ -113,20 +114,21 @@ class _LoginState extends State<Login> {
 
         // Başarı mesajı göster
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Giriş başarılı!")),
+          const SnackBar(
+              content: Text("Kayıt başarılı! Giriş yapabilirsiniz.")),
         );
 
-        // Ana sayfaya yönlendir
+        // Giriş sayfasına yönlendir
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const Home()),
+          MaterialPageRoute(builder: (context) => const Login()),
         );
       }).catchError((error) {
         // Timeout timer'ı iptal et
         timeoutTimer?.cancel();
 
-        // Giriş başarısız
-        print("Giriş hatası: $error");
+        // Kayıt başarısız
+        print("Kayıt hatası: $error");
         print("Hata türü: ${error.runtimeType}");
 
         setState(() {
@@ -134,27 +136,23 @@ class _LoginState extends State<Login> {
         });
 
         // Hata mesajını göster
-        String errorMessage = "Giriş başarısız";
+        String errorMessage = "Kayıt başarısız";
         if (error is FirebaseAuthException) {
           print("Firebase Auth Hata Kodu: ${error.code}");
           print("Firebase Auth Hata Mesajı: ${error.message}");
 
           switch (error.code) {
-            case 'user-not-found':
-              errorMessage = "Kullanıcı bulunamadı";
-              break;
-            case 'wrong-password':
-              errorMessage = "Yanlış şifre";
+            case 'email-already-in-use':
+              errorMessage = "Bu email adresi zaten kullanımda";
               break;
             case 'invalid-email':
               errorMessage = "Geçersiz email formatı";
               break;
-            case 'user-disabled':
-              errorMessage = "Bu kullanıcı hesabı devre dışı bırakılmış";
+            case 'weak-password':
+              errorMessage = "Şifre çok zayıf";
               break;
-            case 'too-many-requests':
-              errorMessage =
-                  "Çok fazla başarısız giriş denemesi. Lütfen daha sonra tekrar deneyin";
+            case 'operation-not-allowed':
+              errorMessage = "Email/şifre girişi etkin değil";
               break;
             case 'network-request-failed':
               errorMessage = "Ağ bağlantısı hatası";
@@ -163,10 +161,10 @@ class _LoginState extends State<Login> {
               errorMessage = "Geçersiz kimlik bilgileri";
               break;
             default:
-              errorMessage = "Giriş başarısız: ${error.message}";
+              errorMessage = "Kayıt başarısız: ${error.message}";
           }
         } else {
-          errorMessage = "Giriş başarısız: $error";
+          errorMessage = "Kayıt başarısız: $error";
         }
 
         setState(() {
@@ -176,39 +174,12 @@ class _LoginState extends State<Login> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(errorMessage)),
         );
-      }, test: (error) => true); // Tüm hataları yakala
-
-      // Alternatif yaklaşım: Auth state değişikliklerini dinle
-      // Bu, Firebase Authentication işlemi başarılı olduğunda tetiklenecek
-      FirebaseAuth.instance.authStateChanges().listen((User? user) {
-        if (user != null && _isLoading) {
-          print(
-              "Auth state değişikliği: Kullanıcı oturum açtı: ${user.email} (${user.uid})");
-
-          // Timeout timer'ı iptal et
-          timeoutTimer?.cancel();
-
-          setState(() {
-            _isLoading = false;
-          });
-
-          // Başarı mesajı göster
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Giriş başarılı!")),
-          );
-
-          // Ana sayfaya yönlendir
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const Home()),
-          );
-        }
       });
     } catch (e) {
       // Timeout timer'ı iptal et
       timeoutTimer?.cancel();
 
-      print("Beklenmeyen giriş hatası: $e");
+      print("Beklenmeyen kayıt hatası: $e");
       print("Hata türü: ${e.runtimeType}");
 
       setState(() {
@@ -225,6 +196,9 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Kayıt Ol'),
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -246,7 +220,7 @@ class _LoginState extends State<Login> {
 
                   // Welcome Text
                   const Text(
-                    'Hoş Geldiniz',
+                    'Hesap Oluştur',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -256,7 +230,7 @@ class _LoginState extends State<Login> {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Lütfen hesabınıza giriş yapın',
+                    'Lütfen bilgilerinizi girin',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey,
@@ -354,42 +328,55 @@ class _LoginState extends State<Login> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
 
-                  // Remember Me & Forgot Password
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: _rememberMe,
-                            activeColor: Colors.blue,
-                            onChanged: (value) {
-                              setState(() {
-                                _rememberMe = value!;
-                              });
-                            },
-                          ),
-                          const Text('Beni Hatırla'),
-                        ],
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // Forgot password logic
-                        },
-                        child: const Text(
-                          'Şifremi Unuttum',
-                          style: TextStyle(color: Colors.blue),
+                  // Confirm Password Field
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    obscureText: !_isConfirmPasswordVisible,
+                    decoration: InputDecoration(
+                      labelText: 'Şifreyi Onayla',
+                      hintText: 'Şifrenizi tekrar girin',
+                      prefixIcon:
+                          const Icon(Icons.lock_outline, color: Colors.blue),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isConfirmPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Colors.blue,
                         ),
+                        onPressed: () {
+                          setState(() {
+                            _isConfirmPasswordVisible =
+                                !_isConfirmPasswordVisible;
+                          });
+                        },
                       ),
-                    ],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide:
+                            const BorderSide(color: Colors.blue, width: 2),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Lütfen şifrenizi tekrar girin';
+                      }
+                      if (value != _passwordController.text) {
+                        return 'Şifreler eşleşmiyor';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 24),
 
-                  // Login Button
+                  // Register Button
                   ElevatedButton(
-                    onPressed: _isLoading ? null : _login,
+                    onPressed: _isLoading ? null : _register,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,
@@ -409,27 +396,27 @@ class _LoginState extends State<Login> {
                             ),
                           )
                         : const Text(
-                            'Giriş Yap',
+                            'Kayıt Ol',
                             style: TextStyle(fontSize: 16),
                           ),
                   ),
                   const SizedBox(height: 24),
 
-                  // Register Option
+                  // Login Option
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('Hesabınız yok mu?'),
+                      const Text('Zaten hesabınız var mı?'),
                       TextButton(
                         onPressed: () {
-                          Navigator.push(
+                          Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const Register()),
+                                builder: (context) => const Login()),
                           );
                         },
                         child: const Text(
-                          'Kayıt Ol',
+                          'Giriş Yap',
                           style: TextStyle(
                             color: Colors.blue,
                             fontWeight: FontWeight.bold,

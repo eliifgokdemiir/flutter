@@ -3,11 +3,12 @@ plugins {
     id "kotlin-android"
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
+    id "com.google.gms.google-services"  // Google Services eklentisi
 }
 
 android {
     namespace = "com.example.state_management"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 34  // 33'ten 34'e yükseltildi
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -24,10 +25,10 @@ android {
         applicationId = "com.example.state_management"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        minSdk = 21  // Firebase için minimum 19 olmalı
+        targetSdk = 34  // 33'ten 34'e yükseltildi
+        versionCode = 1
+        versionName = "1.0"
     }
 
     buildTypes {
@@ -41,4 +42,10 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Firebase bağımlılıkları
+    implementation platform('com.google.firebase:firebase-bom:32.2.0')
+    implementation 'com.google.firebase:firebase-analytics'
 }

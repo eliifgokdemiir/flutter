@@ -3,6 +3,8 @@ import 'package:state_management/ui/view/dashboard.dart';
 import 'package:state_management/ui/view/home.dart';
 import 'package:state_management/ui/view/navbar_menu.dart';
 import 'package:state_management/ui/view/profile.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:state_management/ui/view/login.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -269,10 +271,27 @@ class _SettingsState extends State<Settings> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Implement logout logic
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Çıkış yapılıyor...')),
-                  );
+                  // Firebase ile çıkış yap
+                  FirebaseAuth.instance.signOut().then((_) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Çıkış yapılıyor...')),
+                    );
+
+                    // Login sayfasına yönlendir
+                    Future.delayed(const Duration(milliseconds: 500), () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => const Login()),
+                        (route) => false, // Tüm önceki rotaları temizle
+                      );
+                    });
+                  }).catchError((error) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content:
+                              Text('Çıkış yapılırken hata oluştu: $error')),
+                    );
+                  });
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
