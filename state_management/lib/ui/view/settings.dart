@@ -112,10 +112,10 @@ class _SettingsState extends State<Settings> {
                           color: Colors.blue),
                       onTap: () {
                         // Navigate to profile edit page
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content:
-                                  Text('Profil düzenleme sayfası açılıyor')),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const Profile()),
                         );
                       },
                     ),

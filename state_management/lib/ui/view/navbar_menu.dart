@@ -3,6 +3,7 @@ import 'package:state_management/data/entity/product.dart';
 import 'package:state_management/ui/view/branches.dart';
 import 'package:state_management/ui/view/dashboard.dart';
 import 'package:state_management/ui/view/home.dart';
+import 'package:state_management/ui/view/login.dart';
 import 'package:state_management/ui/view/product_management.dart';
 import 'package:state_management/ui/view/profile.dart';
 import 'package:state_management/ui/view/reports.dart';
@@ -52,7 +53,7 @@ class NavbarMenu extends StatelessWidget {
                 _buildMenuItem(
                     Icons.settings, 'Ayarlar', context, const Settings()),
                 _buildMenuItem(
-                    Icons.exit_to_app, 'Çıkış Yap', context, const Dashboard()),
+                    Icons.exit_to_app, 'Çıkış Yap', context, const Login()),
               ],
             ),
           ),
