@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:state_management/ui/view/login.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -108,6 +109,9 @@ class _RegisterState extends State<Register> {
         print("Kayıt başarılı: ${userCredential.user?.email}");
         print("Kullanıcı UID: ${userCredential.user?.uid}");
 
+        // Kullanıcı bilgilerini Firestore'a kaydet
+        _saveUserToFirestore(userCredential.user!);
+
         setState(() {
           _isLoading = false;
         });
@@ -190,6 +194,27 @@ class _RegisterState extends State<Register> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Beklenmeyen bir hata oluştu: $e")),
       );
+    }
+  }
+
+  // Kullanıcı bilgilerini Firestore'a kaydet
+  Future<void> _saveUserToFirestore(User user) async {
+    try {
+      // Kullanıcı adını email'den çıkar (@ işaretinden önceki kısım)
+      String name = user.email!.split('@')[0];
+
+      // Firestore'a kullanıcı bilgilerini kaydet
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'name': name,
+        'email': user.email,
+        'joinDate': DateTime.now().toString(),
+        'lastLogin': DateTime.now().toString(),
+        'createdAt': DateTime.now(),
+      });
+
+      print("Kullanıcı bilgileri Firestore'a kaydedildi");
+    } catch (e) {
+      print("Firestore'a kullanıcı kaydetme hatası: $e");
     }
   }
 

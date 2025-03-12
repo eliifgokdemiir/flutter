@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:state_management/ui/view/home.dart';
 import 'package:state_management/ui/view/register.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -107,6 +108,9 @@ class _LoginState extends State<Login> {
         print("Giriş başarılı: ${userCredential.user?.email}");
         print("Kullanıcı UID: ${userCredential.user?.uid}");
 
+        // Son giriş tarihini güncelle
+        _updateLastLogin(userCredential.user!);
+
         setState(() {
           _isLoading = false;
         });
@@ -188,6 +192,9 @@ class _LoginState extends State<Login> {
           // Timeout timer'ı iptal et
           timeoutTimer?.cancel();
 
+          // Son giriş tarihini güncelle
+          _updateLastLogin(user);
+
           setState(() {
             _isLoading = false;
           });
@@ -219,6 +226,42 @@ class _LoginState extends State<Login> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Beklenmeyen bir hata oluştu: $e")),
       );
+    }
+  }
+
+  // Son giriş tarihini güncelle
+  Future<void> _updateLastLogin(User user) async {
+    try {
+      // Firestore'da kullanıcı belgesini kontrol et
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (userDoc.exists) {
+        // Kullanıcı belgesi varsa, son giriş tarihini güncelle
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .update({
+          'lastLogin': DateTime.now().toString(),
+        });
+      } else {
+        // Kullanıcı belgesi yoksa, yeni bir belge oluştur
+        String name = user.displayName ?? user.email!.split('@')[0];
+
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'name': name,
+          'email': user.email,
+          'joinDate': DateTime.now().toString(),
+          'lastLogin': DateTime.now().toString(),
+          'createdAt': DateTime.now(),
+        });
+      }
+
+      print("Son giriş tarihi güncellendi");
+    } catch (e) {
+      print("Son giriş tarihini güncelleme hatası: $e");
     }
   }
 
